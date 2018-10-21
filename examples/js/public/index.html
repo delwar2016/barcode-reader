@@ -2,6 +2,25 @@
 <html>
 <head>
   <script src="jquery-1.11.3.min.js"></script>
+  <style>
+    body {
+      background: #F7F7F7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .video-container {
+      margin: 2em auto 0;
+      width: 500px;
+      padding: 2em;
+      background: white;
+      -webkit-box-shadow: 0 1px 10px #D9D9D9;
+      -moz-box-shadow: 0 1px 10px #D9D9D9;
+      -ms-box-shadow: 0 1px 10px #D9D9D9;
+      -o-box-shadow: 0 1px 10px #D9D9D9;
+      box-shadow: 0 1px 10px #D9D9D9;
+    }
+  </style>
 </head>
 <body>
 <h1>Sample barcode / QR code Demo</h1>
@@ -9,7 +28,7 @@
   Just you need to give the access to camera. After that it will start auto scanning your barcode/ QR code
 </p>
 <div class="center-block">
-  <video muted autoplay playsinline id="video" width="50%" height="50%"></video>
+  <video muted autoplay playsinline id="video" width="500" class="video-container"></video>
   <canvas id="pc-canvas" style="display: none; float: bottom;"></canvas>
   <canvas id="mobile-canvas" style="display: none; float: bottom;"></canvas>
   <div class="select center-block">
@@ -25,6 +44,52 @@
 
 <script async src="zxing.js"></script>
 <script>
+
+  // Older browsers might not implement mediaDevices at all, so we set an empty object first
+  if (navigator.mediaDevices === undefined) {
+    navigator.mediaDevices = {};
+  }
+
+  // Some browsers partially implement mediaDevices. We can't just assign an object
+  // with getUserMedia as it would overwrite existing properties.
+  // Here, we will just add the getUserMedia property if it's missing.
+  if (navigator.mediaDevices.getUserMedia === undefined) {
+    navigator.mediaDevices.getUserMedia = function(constraints) {
+
+      // First get ahold of the legacy getUserMedia, if present
+      var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+      // Some browsers just don't implement it - return a rejected promise with an error
+      // to keep a consistent interface
+      if (!getUserMedia) {
+        return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+      }
+
+      // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+      return new Promise(function(resolve, reject) {
+        getUserMedia.call(navigator, constraints, resolve, reject);
+      });
+    }
+  }
+
+  navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+    .then(function(stream) {
+      var video = document.querySelector('video');
+      // Older browsers may not have srcObject
+      if ("srcObject" in video) {
+        video.srcObject = stream;
+      } else {
+        // Avoid using this in new browsers, as it is going away.
+        video.src = window.URL.createObjectURL(stream);
+      }
+      video.onloadedmetadata = function(e) {
+        video.play();
+      };
+    })
+    .catch(function(err) {
+      console.log(err.name + ": " + err.message);
+    });
+
   var ZXing = null;
   var findTimeout = setInterval(function(){
     tick();
@@ -176,8 +241,7 @@
       var constraints = {
         audio: false,
         video: {
-          deviceId: {exact: me.videoSelect.value},
-          facingMode: 'user'
+          deviceId: {exact: me.videoSelect.value}
         }
       };
 
