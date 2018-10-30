@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="jquery-1.11.3.min.js"></script>
+</head>
+<body>
+<h1>Sample barcode / QR code Demo</h1>
+<p>
+  Just you need to give the access to camera. After that it will start auto scanning your barcode/ QR code
+</p>
+<button onclick="testZXing('image/code3.jpg')">Click1</button>
+<button onclick="testZXing('image/code2.jpg')">Click2</button>
+<button onclick="testZXing('image/ISSN.jpg')">Click3</button>
+<br>
+<div id="barcode-list" style="overflow: auto; min-height: 260px;">
+
+</div>
+</body>
+
+<script async src="zxing.js"></script>
+<script>
+  var ZXing = null;
+  var findTimeout = setInterval(function(){
+    tick();
+  }, 100)
+  var decodeCallback;
+  function tick (){
+    if (window.ZXing) {
+      ZXing = ZXing();
+      console.log('ready');
+      decodeCallback = function (ptr, len, resultIndex, resultCount) {
+        clearTimeout(setTimeoutSearch);
+        var result = new Uint8Array(ZXing.HEAPU8.buffer, ptr, len);
+        window.resultString = String.fromCharCode.apply(null, result);
+        $('#barcode-list').prepend('<br>');
+        $('#barcode-list').prepend(window.resultString)
+
+      };
+      clearInterval(findTimeout);
+    }
+  }
+  function testZXing(imageurl) {
+    var img = new Image();
+    img.src = imageurl;
+    img.onload = function () {
+
+      var width = Math.floor(this.width),
+        height = Math.floor(this.height);
+
+      var canvas = document.createElement('canvas');
+      canvas.style.display = 'block';
+      canvas.width = width;
+      canvas.height = height;
+      var ctx = canvas.getContext('2d');
+      // ctx.rotate(Math.random()*0.1-0.05);
+      ctx.drawImage(this, 0, 0, width, height);
+      var imageData = ctx.getImageData(0, 0, width, height);
+      var idd = imageData.data;
+
+      var decodePtr = ZXing.Runtime.addFunction(decodeCallback);
+
+      var image = ZXing._resize(width, height);
+      var i = 0;
+      var j = 0;
+      scamCode(image, idd, decodePtr, i, j);
+
+    };
+  };
+  var setTimeoutSearch;
+  var scamCode = function (paramImage, iddParam, decodePtr, i, j) {
+    for (; i < iddParam.length; i += 4, j++) {
+      ZXing.HEAPU8[paramImage + j] = iddParam[i];
+    }
+
+    var err = ZXing._decode_any(decodePtr);
+    if (i >= iddParam.length) {
+      clearTimeout(setTimeoutSearch);
+      return;
+    }
+    if (err == -2) {
+      clearTimeout(setTimeoutSearch);
+      setTimeoutSearch = setTimeout(function () {
+        scamCode(paramImage, iddParam, decodePtr, i, j);
+      }, 500);
+    }
+  }
+  document.addEventListener('message', function (data) {
+    testZXing('data:image/jpg;base64,' + JSON.parse(data.data).base64);
+  });
+</script>
+</html>
