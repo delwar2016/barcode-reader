@@ -13,6 +13,7 @@
 <button onclick="testZXing('image/code3.jpg')">Click1</button>
 <button onclick="testZXing('image/code2.jpg')">Click2</button>
 <button onclick="testZXing('image/ISSN.jpg')">Click3</button>
+<button onclick="loadFromImage()">Copy</button>
 <br>
 <div id="barcode-list" style="overflow: auto; min-height: 260px;">
 
@@ -41,6 +42,9 @@
       };
       clearInterval(findTimeout);
     }
+  }
+  function loadFromImage() {
+    testZXing($('#image').attr('src'));
   }
   function testZXing(imageurl) {
     if (!imageurl) {
