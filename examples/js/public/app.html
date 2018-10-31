@@ -122,7 +122,7 @@
     }
   }
   document.addEventListener('message', function (data) {
-    $('#imageUrl').val(data.data);
+    $('#imageUrl').val(JSON.parse(data.data).base64);
     //$('#image').attr('src', 'data:image/jpg;base64,' + JSON.parse(data.data).base64);
     testZXing('data:image/jpg;base64,' + JSON.parse(data.data).base64);
   });
