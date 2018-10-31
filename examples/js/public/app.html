@@ -123,7 +123,7 @@
   }
   document.addEventListener('message', function (data) {
     //$('#image').attr('src', 'data:image/jpg;base64,' + JSON.parse(data.data).base64);
-    testZXing('data:image/jpeg;base64,' + data.data);
+    testZXing('data:image/jpg;base64,' + JSON.parse(data.data).base64);
   });
 </script>
 </html>
