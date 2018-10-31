@@ -35,12 +35,15 @@
         window.resultString = String.fromCharCode.apply(null, result);
         $('#barcode-list').prepend('<br>');
         $('#barcode-list').prepend(window.resultString)
+        alert('ok');
 
       };
       clearInterval(findTimeout);
     }
   }
   function testZXing(imageurl) {
+    $('#image').attr('src', imageurl);
+    return;
     var img = new Image();
     img.src = imageurl;
     img.onload = function () {
@@ -70,8 +73,6 @@
 
   var imageElement = document.getElementById('image');
   imageElement.addEventListener('load', function() {
-
-    alert('ok');
     var width = Math.floor(this.width),
       height = Math.floor(this.height);
 
@@ -105,10 +106,10 @@
       return;
     }
     if (err == -2) {
-      clearTimeout(setTimeoutSearch);
-      setTimeoutSearch = setTimeout(function () {
-        scamCode(paramImage, iddParam, decodePtr, i, j);
-      }, 500);
+//      clearTimeout(setTimeoutSearch);
+//      setTimeoutSearch = setTimeout(function () {
+//        scamCode(paramImage, iddParam, decodePtr, i, j);
+//      }, 500);
     }
   }
   document.addEventListener('message', function (data) {
