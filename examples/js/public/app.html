@@ -69,7 +69,9 @@
   };
 
   var imageElement = document.getElementById('image');
-  imageElement.onload = function () {
+  imageElement.addEventListener('load', function() {
+
+    alert('ok');
     var width = Math.floor(this.width),
       height = Math.floor(this.height);
 
@@ -89,8 +91,7 @@
     var i = 0;
     var j = 0;
     scamCode(image, idd, decodePtr, i, j);
-    alert('ok');
-  }
+  }, false);
 
   var setTimeoutSearch;
   var scamCode = function (paramImage, iddParam, decodePtr, i, j) {
