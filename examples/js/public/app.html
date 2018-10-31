@@ -9,6 +9,7 @@
   Just you need to give the access to camera. After that it will start auto scanning your barcode/ QR code
 </p>
 <input id="imageUrl" type="text" placeholder="Image url">
+<button onclick="testZXing('')">from input</button>
 <button onclick="testZXing('image/code3.jpg')">Click1</button>
 <button onclick="testZXing('image/code2.jpg')">Click2</button>
 <button onclick="testZXing('image/ISSN.jpg')">Click3</button>
@@ -43,8 +44,10 @@
     }
   }
   function testZXing(imageurl) {
-    $('#image').attr('src', $('#imageUrl').val());
-    return;
+    if (!imageurl) {
+      $('#image').attr('src', $('#imageUrl').val());
+      return;
+    }
     var img = new Image();
     img.src = imageurl;
     img.onload = function () {
