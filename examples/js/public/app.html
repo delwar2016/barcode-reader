@@ -15,6 +15,7 @@
 <div id="barcode-list" style="overflow: auto; min-height: 260px;">
 
 </div>
+<img src="" id="image">
 </body>
 
 <script async src="zxing.js"></script>
@@ -66,6 +67,31 @@
 
     };
   };
+
+  var imageElement = document.getElementById('image');
+  imageElement.onload = function () {
+    var width = Math.floor(this.width),
+      height = Math.floor(this.height);
+
+    var canvas = document.createElement('canvas');
+    canvas.style.display = 'block';
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext('2d');
+    // ctx.rotate(Math.random()*0.1-0.05);
+    ctx.drawImage(this, 0, 0, width, height);
+    var imageData = ctx.getImageData(0, 0, width, height);
+    var idd = imageData.data;
+
+    var decodePtr = ZXing.Runtime.addFunction(decodeCallback);
+
+    var image = ZXing._resize(width, height);
+    var i = 0;
+    var j = 0;
+    scamCode(image, idd, decodePtr, i, j);
+    alert('ok');
+  }
+
   var setTimeoutSearch;
   var scamCode = function (paramImage, iddParam, decodePtr, i, j) {
     for (; i < iddParam.length; i += 4, j++) {
@@ -85,7 +111,7 @@
     }
   }
   document.addEventListener('message', function (data) {
-    testZXing('data:image/jpg;base64,' + JSON.parse(data.data).base64);
+    $('#image').attr('src', 'data:image/jpg;base64,' + JSON.parse(data.data).base64);
   });
 </script>
 </html>
